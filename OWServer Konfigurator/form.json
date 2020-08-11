@@ -1,5 +1,103 @@
 {
-    "elements": [],
-    "actions": [],
-    "status": []
+    "actions": [
+        {
+            "type": "ExpansionPanel",
+            "caption": "Servers",
+            "items": [{
+                "type": "Configurator",
+                "name": "Servers",
+                "caption": "Servers",
+                "add": false,
+                "delete": true,
+                "rowCount": 2,
+                "sort": {
+                    "column": "address",
+                    "direction": "ascending"
+                },
+                "columns": [{
+                    "caption": "Address",
+                    "name": "address",
+                    "width": "160px"
+                }, {
+                    "caption": "Model",
+                    "name": "model",
+                    "width": "160px"
+                }, {
+                    "caption": "Name",
+                    "name": "name",
+                    "width": "300px"
+                }, {
+                    "caption": "Location",
+                    "name": "location",
+                    "width": "auto"
+                }
+                ],
+                "values": []
+            }]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "DS18B20",
+            "items": [
+                {
+                    "type": "Configurator",
+                    "name": "DS18B20",
+                    "caption": "DS18B20",
+                    "add": false,
+                    "delete": true,
+                    "rowCount": 2,
+                    "sort": {
+                        "column": "address",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                        "caption": "Address",
+                        "name": "address",
+                        "width": "160px"
+                    }, {
+                        "caption": "Name",
+                        "name": "name",
+                        "width": "300px"
+                    }, {
+                        "caption": "Location",
+                        "name": "location",
+                        "width": "auto"
+                    }
+                    ],
+                    "values": []
+                }]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "DS2450",
+            "items": [
+                {
+                    "type": "Configurator",
+                    "name": "DS2450",
+                    "caption": "DS2450",
+                    "add": false,
+                    "delete": true,
+                    "rowCount": 2,
+                    "sort": {
+                        "column": "address",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                        "caption": "Address",
+                        "name": "address",
+                        "width": "160px"
+                    }, {
+                        "caption": "Name",
+                        "name": "name",
+                        "width": "300px"
+                    }, {
+                        "caption": "Location",
+                        "name": "location",
+                        "width": "auto"
+                    }
+                    ],
+                    "values": []
+                }]
+        }
+    ]
 }
