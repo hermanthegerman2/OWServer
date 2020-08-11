@@ -72,9 +72,9 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
 
 			$this->RequireParent("{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}");
             $this->RegisterPropertyInteger('Port', 4304);
-            $this->RegisterPropertyString('Table', json_encode($Style['Table']));
-            $this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
-            $this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
+            //$this->RegisterPropertyString('Table', json_encode($Style['Table']));
+            //$this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
+            //$this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
             $this->RegisterTimer('KeepAlive', 0, 'OWSPLIT_KeepAlive($_IPS["TARGET"]);');
 		}
 
