@@ -101,7 +101,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             $this->Buffer = '';
 
             // Eigene Profile
-            //$this->CreateProfile();
+            $this->CreateProfile();
             // Eigene Variablen
             $this->RegisterVariableString('Version', 'Version', '', 0);
             $this->ScannerID = $this->RegisterVariableInteger('RescanState', 'Scanner', 'OWSPLIT.Scanner', 1);
