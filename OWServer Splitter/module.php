@@ -41,7 +41,8 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
  **/
 	class OWServerSplitter extends IPSModule {
 
-        use VariableProfileHelper,
+        use OWSPLITProfile,
+            VariableProfileHelper,
             VariableHelper,
             DebugHelper,
             BufferHelper,

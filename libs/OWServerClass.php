@@ -21,7 +21,7 @@ trait OWSPLITProfile
     }
 }
 /**
- * Definiert eine Datensatz zum Versenden an des LMS.
+ * Definiert eine Datensatz zum Versenden an des OWSPLIT.
  *
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2016 Michael Tröger
