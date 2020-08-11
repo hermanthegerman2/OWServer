@@ -1,6 +1,6 @@
 {
     "id": "{16309D33-F843-7A28-CC86-07005432D25A}",
-    "name": "OWDISCovery",
+    "name": "OWServerDiscovery",
     "type": 5,
     "vendor": "OWServer",
     "aliases": ["OWServer Discovery"],
