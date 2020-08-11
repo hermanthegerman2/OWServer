@@ -27,7 +27,7 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
  * @property array $Devices
  */
 	class OWServerDiscovery extends IPSModule {
-        use \OWServer\DebugHelper;
+        use DebugHelper;
 
         /**
          * Interne Funktion des SDK.

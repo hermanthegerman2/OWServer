@@ -16,8 +16,8 @@ declare(strict_types=1);
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/OWServerClass.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace OWServerKonfigurator {?>' . file_get_contents(__DIR__ . '/../libs/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace OWServerKonfigurator {?>' . file_get_contents(__DIR__ . '/../libs/ParentIOHelper.php') . '}');
+require_once __DIR__ . '/../libs/BufferHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
 
 /**
  * OWServerKonfigurator Klasse für ein OWServer Konfigurator.
@@ -31,12 +31,12 @@ eval('declare(strict_types=1);namespace OWServerKonfigurator {?>' . file_get_con
  * @example <b>Ohne</b>
  */
 	class OWServerKonfigurator extends IPSModule {
-        use \OWServer\DebugHelper,
-            \OWServerKonfigurator\BufferHelper,
-            \OWServerKonfigurator\InstanceStatus {
-            \OWServerKonfigurator\InstanceStatus::MessageSink as IOMessageSink;
-            \OWServerKonfigurator\InstanceStatus::RegisterParent as IORegisterParent;
-            \OWServerKonfigurator\InstanceStatus::RequestAction as IORequestAction;
+        use DebugHelper,
+            BufferHelper,
+            InstanceStatus {
+            InstanceStatus::MessageSink as IOMessageSink;
+            InstanceStatus::RegisterParent as IORegisterParent;
+            InstanceStatus::RequestAction as IORequestAction;
         }
 
         /**
