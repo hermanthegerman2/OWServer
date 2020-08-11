@@ -5,7 +5,7 @@
     "vendor": "OWServer",
     "aliases": ["OWServer Konfigurator"],
     "parentRequirements": [
-        "{E7BA97EC-03DF-22AF-8F0D-7463CA1D7D42}\n"
+        "{E7BA97EC-03DF-22AF-8F0D-7463CA1D7D42}"
     ],
     "childRequirements": [],
     "implemented": [
