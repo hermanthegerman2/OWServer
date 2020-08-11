@@ -1,0 +1,12 @@
+{
+    "id": "{B2963A2B-C5F8-03C3-CC97-6A81A0225EC0}",
+    "name": "DS2450",
+    "type": 3,
+    "vendor": "OWServer",
+    "aliases": [],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "OWAB",
+    "url": ""
+}

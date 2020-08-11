@@ -1,0 +1,16 @@
+{
+    "id": "{2E207819-9E78-61B7-D7DA-E89D749B8A30}",
+    "name": "DS18B20",
+    "type": 3,
+    "vendor": "OWServer",
+    "aliases": [],
+    "parentRequirements": [
+        "{E7BA97EC-03DF-22AF-8F0D-7463CA1D7D42}"
+    ],
+    "childRequirements": [],
+    "implemented": [
+        "{41FAEDA0-12D1-C0AF-0379-0DED801354B3}"
+    ],
+    "prefix": "OWAA",
+    "url": ""
+}

@@ -1,0 +1,12 @@
+{
+    "id": "{7B128FD8-6E07-EFBF-634F-5DB04AB0C774}",
+    "name": "OWServer",
+    "author": "Hermann Dötsch",
+    "url": "https://github.com/hermanthegerman2/OWServer",
+    "compatibility": {
+        "version": "5.3"
+    },
+    "version": "1.0",
+    "build": 1,
+    "date": 1597135484
+}

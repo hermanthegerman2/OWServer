@@ -1,0 +1,19 @@
+{
+    "id": "{CFDFE5FC-C6AE-F6EB-D449-89A2A1F25794}",
+    "name": "OWServer Splitter",
+    "type": 2,
+    "vendor": "OWServer",
+    "aliases": [],
+    "parentRequirements": [
+        "{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}"
+    ],
+    "childRequirements": [
+        "{41FAEDA0-12D1-C0AF-0379-0DED801354B3}"
+    ],
+    "implemented": [
+        "{E7BA97EC-03DF-22AF-8F0D-7463CA1D7D42}",
+        "{7A1272A4-CBDB-46EF-BFC6-DCF4A53D2FC7}"
+    ],
+    "prefix": "OWSPLIT",
+    "url": ""
+}
