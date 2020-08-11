@@ -15,9 +15,9 @@ declare(strict_types=1);
  *
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
-require_once __DIR__ . '/../libs/SqueezeBoxClass.php';  // diverse Klassen
-eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/BufferHelper.php') . '}');
-eval('declare(strict_types=1);namespace LMSConfigurator {?>' . file_get_contents(__DIR__ . '/../libs/helper/ParentIOHelper.php') . '}');
+require_once __DIR__ . '/../libs/OWServerClass.php';  // diverse Klassen
+eval('declare(strict_types=1);namespace OWServerKonfigurator {?>' . file_get_contents(__DIR__ . '/../libs/BufferHelper.php') . '}');
+eval('declare(strict_types=1);namespace OWServerKonfigurator {?>' . file_get_contents(__DIR__ . '/../libs/ParentIOHelper.php') . '}');
 
 /**
  * OWServerKonfigurator Klasse für ein OWServer Konfigurator.

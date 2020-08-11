@@ -1,6 +1,6 @@
 {
     "id": "{D07693A2-5469-47B9-5AFD-9658DF201D32}",
-    "name": "OWKONFigurator",
+    "name": "OWServerKonfigurator",
     "type": 4,
     "vendor": "OWServer",
     "aliases": ["OWServer Konfigurator"],
