@@ -286,14 +286,12 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                 return false;
             }
             switch ($Ident) {
-                case 'Players':
-                    $OWSPLITResponse = new OWSPLITData(['player', 'count'], '?');
+                case 'Servers':
+                    $OWSPLITResponse = new OWSPLITData(['server', 'count'], '?');
                     break;
                 case 'Version':
                     $OWSPLITResponse = new OWSPLITData('version', '?');
                     break;
-                case 'Playlists':
-                    return $this->RefreshAllPlaylists();
                 default:
                     trigger_error($this->Translate('Invalid Ident'));
                     return false;
@@ -598,6 +596,36 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                 trigger_error($ex->getMessage(), $ex->getCode());
             }
             return null;
+        }
+
+        //################# Privat
+
+        /**
+         * Ändert das Variablenprofil ServerSelect anhand der bekannten Server.
+         *
+         * @return bool TRUE bei Erfolg, sonst FALSE.
+         */
+        private function RefreshServerList()
+        {
+            $OWSPLITData = $this->SendDirect(new OWSPLITData(['server', 'count'], '?'));
+            if ($OWSPLITData == null) {
+                return false;
+            }
+            $servers = $OWSPLITData->Data[0];
+            $this->SetValueInteger('Servers', $servers);
+            $Assoziation = [];
+            $Assoziation[] = [-2, 'Keiner', '', 0x00ff00];
+            $Assoziation[] = [-1, 'Alle', '', 0xff0000];
+            for ($i = 0; $i < $servers; $i++) {
+                $OWSPLITServerData = $this->SendDirect(new $OWSPLITData(['server', 'name'], [$i, '?']));
+                if ($$OWSPLITServerData == null) {
+                    continue;
+                }
+                $ServerName = $OWSPLITServerData->Data[1];
+                $Assoziation[] = [$i, $ServerName, '', -1];
+            }
+
+            return true;
         }
 
         private function DecodeOWSPLITResponse(OWSPLITData $OWSPLITData)
