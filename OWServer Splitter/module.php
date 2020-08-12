@@ -272,6 +272,39 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             return $this->Send(new OWSPLITData('restartserver')) != null;
         }
 
+        /**
+         * IPS-Instanz-Funktion 'OWSPLIT_RequestState'.
+         * Fragt einen Wert des LMS ab. Es ist der Ident der Statusvariable zu übergeben.
+         *
+         * @param string $Ident Der Ident der abzufragenden Statusvariable.
+         * @result bool True wenn erfolgreich.
+         */
+        public function RequestState(string $Ident)
+        {
+            if ($Ident == '') {
+                trigger_error($this->Translate('Invalid Ident'));
+                return false;
+            }
+            switch ($Ident) {
+                case 'Players':
+                    $OWSPLITResponse = new OWSPLITData(['player', 'count'], '?');
+                    break;
+                case 'Version':
+                    $OWSPLITResponse = new OWSPLITData('version', '?');
+                    break;
+                case 'Playlists':
+                    return $this->RefreshAllPlaylists();
+                default:
+                    trigger_error($this->Translate('Invalid Ident'));
+                    return false;
+            }
+            $OWSPLITResponse = $this->Send($OWSPLITResponse);
+            if ($OWSPLITResponse === null) {
+                return false;
+            }
+            return $this->DecodeOWSPLITResponse($OWSPLITResponse);
+        }
+
         //################# DATAPOINTS DEVICE
 
         /**
@@ -565,6 +598,77 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                 trigger_error($ex->getMessage(), $ex->getCode());
             }
             return null;
+        }
+
+        private function DecodeOWSPLITResponse(OWSPLITData $OWSPLITData)
+        {
+            if ($OWSPLITData == null) {
+                return false;
+            }
+            $this->SendDebug('Decode', $OWSPLITData, 0);
+            switch ($OWSPLITData->Command[0]) {
+                case 'listen':
+                    return true;
+                case 'scanner':
+                    switch ($OWSPLITData->Data[0]) {
+                        case 'notify':
+                            $Data = new OWSPLITTaggingData($OWSPLITData->Data[1]);
+//                        $this->SendDebug('scanner', $Data, 0);
+                            switch ($Data->Name) {
+                                case 'end':
+                                case 'exit':
+                                    $this->SetValueString('RescanInfo', '');
+                                    $this->SetValueString('RescanProgress', '');
+                                    return true;
+                                case 'progress':
+                                    $Info = explode('||', $Data->Value);
+                                    $StepInfo = $Info[2];
+                                    if (strpos($StepInfo, '|')) {
+                                        $StepInfo = explode('|', $StepInfo)[1];
+                                    }
+                                    $this->SetValueString('RescanInfo', $StepInfo);
+                                    $StepProgress = $Info[3] . ' von ' . $Info[4];
+                                    $this->SetValueString('RescanProgress', $StepProgress);
+                                    return true;
+                            }
+                            break;
+                    }
+                    break;
+                case 'server':
+                    if ($OWSPLITData->Command[1] == 'count') {
+                        $this->SetValueInteger('Servers', (int) $OWSPLITData->Data[0]);
+                        return true;
+                    }
+                    break;
+                case 'version':
+                    $this->SetValueString('Version', $OWSPLITData->Data[0]);
+                    return true;
+                case 'rescan':
+                    if (!isset($OWSPLITData->Data[0])) {
+                        if ($this->GetValue('RescanState') != 2) {
+                            $this->SetValueInteger('RescanState', 2); // einfacher
+                        }
+                        return true;
+                    } else {
+                        if (($OWSPLITData->Data[0] == 'done') || ($OWSPLITData->Data[0] == '0')) {
+                            if ($this->GetValue('RescanState') != 0) {
+                                $this->SetValueInteger('RescanState', 0);   // fertig
+                            }
+                            return true;
+                        } elseif ($OWSPLITData->Data[0] == '1') {
+                            //start
+                            if ($this->GetValue('RescanState') != 2) {
+                                $this->SetValueInteger('RescanState', 2); // einfacher
+                            }
+                            return true;
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            return false;
         }
 
         /**
