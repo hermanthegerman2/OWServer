@@ -725,7 +725,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             if (!$this->ReadPropertyString('Host')) {
                 return false;
             }
-            $this->Socket=socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
+            $this->Socket=socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);                                        // create socket
             if ($this->Socket) {
                 socket_set_block($this->Socket);					                                                                // set it to blocking
                 $ok=socket_connect($this->Socket,$this->ReadPropertyString('Host'),$this->ReadPropertyInteger('Port'));// try to connect
