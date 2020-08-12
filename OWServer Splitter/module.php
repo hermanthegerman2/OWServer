@@ -722,7 +722,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
 
         private function CheckConnection()
         {
-            if ($this->ReadPropertyString('Host') === '') {
+            if (!$this->ReadPropertyString('Host')) {
                 return false;
             }
             $this->Socket=socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
