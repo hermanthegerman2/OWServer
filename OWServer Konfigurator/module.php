@@ -192,7 +192,7 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
 
             // DS2413
             $DS2413Values = [];
-            foreach ($FoundAlarms as $Address => $Device) {
+            foreach ($FoundDS2413 as $Address => $Device) {
                 $InstanceID = array_search($Address, $InstanceIDListDS2413);
                 if ($InstanceID !== false) {
                     $AddValue = [
@@ -229,7 +229,7 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
 
             // DS2450
             $DS2450Values = [];
-            foreach ($FoundBattery as $Address => $Device) {
+            foreach ($FoundDS2450 as $Address => $Device) {
                 $InstanceID = array_search($Address, $InstanceIDListDS2450);
                 if ($InstanceID !== false) {
                     $AddValue = [
