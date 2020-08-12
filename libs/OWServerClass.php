@@ -94,6 +94,24 @@ class OWSPLITData extends stdClass
     }
 
     /**
+     * Erzeugt ein JSON-String für den internen Datenaustausch dieses Moduls.
+     *
+     * @param string $GUID GUID des Datenpaketes.
+     *
+     * @return string Der JSON-String.
+     */
+    public function ToJSONString($GUID)
+    {
+        $this->EncodeUTF8($this);
+        return json_encode(['DataID'       => $GUID,
+            'Address'                      => $this->Address,
+            'Command'                      => $this->Command,
+            'Data'                         => $this->Data,
+            'needResponse'                 => $this->needResponse
+        ]);
+    }
+
+    /**
      * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
      *
      * @param type $GUID Die TX-GUID
