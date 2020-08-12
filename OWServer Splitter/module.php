@@ -727,17 +727,24 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             }
             $this->Socket=socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
             if ($this->Socket) {
-                @socket_set_block($this->Socket);					                                                                // set it to blocking
-                $ok=@socket_connect($this->Socket,$this->ReadPropertyString('Host'),$this->ReadPropertyInteger('Port'));// try to connect
+                socket_set_block($this->Socket);					                                                                // set it to blocking
+                $ok=socket_connect($this->Socket,$this->ReadPropertyString('Host'),$this->ReadPropertyInteger('Port'));// try to connect
                 if (!$ok){
                     $errno	=socket_last_error();				                                                                    // get error when connecting
                     $errstr	=socket_strerror(socket_last_error());
                     $this->SendDebug('no socket', $errstr, 0);
-                    @socket_shutdown($this->Socket,2);			                                                                // unload socket
-                    @socket_close($this->Socket);
+                    socket_shutdown($this->Socket,2);			                                                                // unload socket
+                    socket_close($this->Socket);
                     $this->Socket=NULL;
                     return false;                                                                                                   // return false on error or can't connect
                 }
+                socket_set_option($this->Socket,SOL_SOCKET, SO_RCVTIMEO, array("sec"=>0, "usec"=>100));	// receive timeout
+                socket_set_option($this->Socket,SOL_SOCKET, SO_SNDTIMEO, array("sec"=>0, "usec"=>100));	// send timeout
+                socket_set_option($this->Socket, SOL_SOCKET, SO_REUSEADDR, 1);	// reuse address
+                socket_set_option($this->Socket, SOL_SOCKET, SO_OOBINLINE, 1);	// out off band inline
+                socket_set_option($this->Socket, IPPROTO_TCP, TCP_NODELAY, 1);	// no delay  can have bug with windows?!
+                socket_set_option($this->Socket, SOL_SOCKET, SO_RCVBUF, 8192);	// set receive buffer
+                socket_set_option($this->Socket, SOL_SOCKET, SO_SNDBUF, 8192);	// set send buffer
                 return true;                                                                                                        // socket created and connected
             }
             else {
