@@ -450,8 +450,8 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
 
                 if ($OWSPLITData->needResponse) {
                     $this->SendDebug('Send', $OWSPLITData, 0);
-                    $this->SendQueuePush($OWSPLITData);
-                    $this->SendDataToParent($OWSPLITData->ToJSONStringForOWSPLIT('{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}'));
+                    //$this->SendQueuePush($OWSPLITData);
+                    $this->SendDataToParent($OWSPLITData->ToJSONStringForOWSPLIT('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}'));
                     $ReplyDataArray = $this->WaitForResponse($OWSPLITData);
 
                     if ($ReplyDataArray === false) {
@@ -463,7 +463,7 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                     return $OWSPLITData;
                 } else { // ohne Response, also ohne warten raussenden,
                     $this->SendDebug('SendFaF', $OWSPLITData, 0);
-                    return $this->SendDataToParent($OWSPLITData->ToJSONStringForOWSPLIT('{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}'));
+                    return $this->SendDataToParent($OWSPLITData->ToJSONStringForOWSPLIT('{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}'));
                 }
             } catch (Exception $exc) {
                 trigger_error($exc->getMessage(), $exc->getCode());
