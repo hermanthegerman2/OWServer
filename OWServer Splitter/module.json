@@ -5,7 +5,7 @@
     "vendor": "OWServer",
     "aliases": ["OWServer Splitter"],
     "parentRequirements": [
-        "{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}"
+        "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
     ],
     "childRequirements": [
         "{41FAEDA0-12D1-C0AF-0379-0DED801354B3}"
