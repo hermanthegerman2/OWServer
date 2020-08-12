@@ -143,7 +143,7 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
             socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
             socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 1, 'usec' => 100000]);
             socket_bind($socket, '0.0.0.0', 0);
-            $message = "\x65\x49\x50\x41\x44\x00\x4e\x41\x4d\x45\x00\x4a\x53\x4f\x4e\x00\x56\x45\x52\x53\x00\x55\x55\x49\x44\x00\x4a\x56\x49\x44\x06\x12\x34\x56\x78\x12\x34";
+            $message = "";
             $this->SendDebug('Search', $message, 1);
             if (@socket_sendto($socket, $message, strlen($message), 0, '255.255.255.255', 4304) === false) {
                 return [];
