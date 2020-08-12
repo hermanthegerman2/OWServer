@@ -160,16 +160,14 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
                     $AddValue = [
                         'instanceID' => $InstanceID,
                         'name'       => IPS_GetName($InstanceID),
-                        'model'      => ucfirst($Device['model']),
                         'address'    => $Address,
-                        'location'   => stristr(IPS_GetLocation($InstanceID), IPS_GetName($InstanceID), true)
+                        'location'   => IPS_GetLocation($InstanceID)
                     ];
                     unset($InstanceIDListDS18B20[$InstanceID]);
                 } else {
                     $AddValue = [
                         'instanceID' => 0,
-                        'name'       => $Device['name'],
-                        'model'      => ucfirst($Device['model']),
+                        'name'       => $this->Translate('DS18B20') . ' ' . $Device['name'],
                         'address'    => $Address,
                         'location'   => ''
                     ];
@@ -207,7 +205,7 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
                 } else {
                     $AddValue = [
                         'instanceID' => 0,
-                        'name'       => $this->Translate('Alarm') . ' ' . $Device['name'],
+                        'name'       => $this->Translate('DS2413') . ' ' . $Device['name'],
                         'address'    => $Address,
                         'location'   => ''
                     ];
@@ -244,7 +242,7 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
                 } else {
                     $AddValue = [
                         'instanceID' => 0,
-                        'name'       => $this->Translate('Battery') . ' ' . $Device['name'],
+                        'name'       => $this->Translate('DS2450') . ' ' . $Device['name'],
                         'address'    => $Address,
                         'location'   => ''
                     ];
@@ -313,7 +311,7 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
 
         /**
          * IPS-Instanz-Funktion 'OWKONF_GetDeviceInfo'.
-         * Lädt die bekannten Player vom OWSPLIT.
+         * Lädt die bekannten Devices vom OWSPLIT.
          *
          * @result array|bool Assoziiertes Array,  false und Fehlermeldung.
          */

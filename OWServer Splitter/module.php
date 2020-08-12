@@ -77,6 +77,12 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             //$this->RegisterPropertyString('Columns', json_encode($Style['Columns']));
             //$this->RegisterPropertyString('Rows', json_encode($Style['Rows']));
             $this->RegisterTimer('KeepAlive', 0, 'OWSPLIT_KeepAlive($_IPS["TARGET"]);');
+
+            $this->ReplyOWSPLITData = [];
+            $this->Buffer = '';
+            $this->Host = '';
+            $this->ParentID = 0;
+            $this->ScannerID = 0;
 		}
 
 		public function Destroy()
@@ -352,7 +358,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
                     $this->LogMessage($this->Translate('Connected to OWSPLIT'), KL_NOTIFY);
                     $this->RequestState('Version');
                     $this->LogMessage($this->Translate('Version of OWSPLIT:') . $this->GetValue('Version'), KL_NOTIFY);
-                    $this->RequestState('Players');
+                    $this->RequestState('Servers');
                     $this->LogMessage($this->Translate('Connected Servers to OWSPLIT:') . $this->GetValue('Servers'), KL_NOTIFY);
                     $this->RefreshServerList();
                     $ret = $this->Send(new LMSData('rescan', '?'));
@@ -479,7 +485,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
          */
         private function SendDataToDevice(OWSPLITResponse $OWSPLITResponse)
         {
-            $Data = $LMSResponse->ToJSONStringForDevice('{41FAEDA0-12D1-C0AF-0379-0DED801354B3}');
+            $Data = $OWSPLITResponse->ToJSONStringForDevice('{41FAEDA0-12D1-C0AF-0379-0DED801354B3}');
             $this->SendDebug('IPS_SendDataToChildren', $Data, 0);
             $this->SendDataToChildren($Data);
         }

@@ -2,11 +2,11 @@
     "actions": [
         {
             "type": "ExpansionPanel",
-            "caption": "Servers",
+            "caption": "DS18B20",
             "items": [{
                 "type": "Configurator",
-                "name": "Servers",
-                "caption": "Servers",
+                "name": "DS18B20",
+                "caption": "DS18B20",
                 "add": false,
                 "delete": true,
                 "rowCount": 2,
@@ -37,12 +37,12 @@
         },
         {
             "type": "ExpansionPanel",
-            "caption": "DS18B20",
+            "caption": "DS2413",
             "items": [
                 {
                     "type": "Configurator",
-                    "name": "DS18B20",
-                    "caption": "DS18B20",
+                    "name": "DS2413",
+                    "caption": "DS2413",
                     "add": false,
                     "delete": true,
                     "rowCount": 2,

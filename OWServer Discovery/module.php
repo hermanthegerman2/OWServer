@@ -164,8 +164,8 @@ require_once __DIR__ . '/../libs/DebugHelper.php';  // diverse Klassen
                     continue;
                 }
                 $this->SendDebug('Receive', $buf, 0);
-                $Serach = ['UUID', 'ENAME', 'VERS', 'JSON'];
-                foreach ($Serach as $Key) {
+                $Search = ['UUID', 'ENAME', 'VERS', 'JSON'];
+                foreach ($Search as $Key) {
                     $start = strpos($buf, $Key);
                     if ($start !== false) {
                         $DeviceData[$IPAddress][$Key] = substr($buf, $start + strlen($Key) + 1, ord($buf[$start + strlen($Key)]));
