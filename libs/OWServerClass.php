@@ -139,6 +139,17 @@ class OWSPLITData extends stdClass
         }
         return trim($this->Address . ' ' . trim($Command) . ' ' . trim($Data)) . chr(0x0d);
     }
+
+    /**
+     * Liefert das Suchmuster für die SendQueue.
+     *
+     * @return string Das Suchmuster.
+     */
+    public function GetSearchPatter()
+    {
+        return $this->Address . implode('', $this->Command);
+    }
+
 }
 
 class OWSPLITResponse extends OWSPLITData
