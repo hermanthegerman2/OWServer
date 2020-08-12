@@ -293,7 +293,7 @@ class OWNet{
             else
                 $num_changed_sockets = stream_select($read, $write , $except, $t1,$t2);	// use stream_select
             if ($num_changed_sockets===false){	// error handling select
-                $this->disconnect();
+                //$this->disconnect();
                 //trigger_error("Error handling get_msg#1",E_USER_NOTICE);
                 return(false);			// return false when have error
             }elseif($num_changed_sockets>0){	// we can read!
@@ -310,7 +310,7 @@ class OWNet{
                 }else
                     $read_data=fread($this->link,$msg_size);			// read with streams
                 if ($read_data==''){		// disconnected :'(
-                    $this->disconnect();
+                    //$this->disconnect();
                     //trigger_error("Disconnected",E_USER_NOTICE);
                     return(false);			// return false when have error
                 }else
@@ -337,7 +337,7 @@ class OWNet{
             else
                 $num_changed_sockets = stream_select($read , $write , $except, 0,1000);	// use stream_select
             if ($num_changed_sockets===false){		// error handling
-                $this->disconnect();
+                //$this->disconnect();
                 //trigger_error("Error handling send_msg#1",E_USER_NOTICE);
                 return(false);				// return false on error
             }
@@ -355,7 +355,7 @@ class OWNet{
                 $ret=fwrite($this->link,$string,strlen($string));		// write and get sent bytes
             if ($ret===false){
                 // error sending
-                $this->disconnect();
+                //$this->disconnect();
                 //trigger_error("Error writing send_msg#1",E_USER_NOTICE);
                 return(false);				// return false on error
             }
@@ -403,8 +403,8 @@ class OWNet{
             if (substr($path,strlen($path)-1,1)=='/')	// isn't a dir, dir must end with characters != '/'
                 return(NULL);
         }
-        $this->disconnect();		// be sure that we are disconnected
-        $this->connect();		// try to connect
+        //$this->disconnect();		// be sure that we are disconnected
+        //$this->connect();		// try to connect
         if (!$this->link_connected){
             //trigger_error("Can't connect get#1",E_USER_NOTICE);
             return(NULL);
@@ -438,7 +438,7 @@ class OWNet{
                 $tmp_ret=$this->get_msg(24);
                 if ($tmp_ret===false){
                     //trigger_error("Can't read from resource get#3",E_USER_NOTICE);
-                    $this->disconnect();
+                    //$this->disconnect();
                     return(NULL);
                 }
                 if (strlen($tmp_ret)>0)	$start=microtime(1);
@@ -453,7 +453,7 @@ class OWNet{
                     return($this->get($path,OWNET_MSG_DIR,$return_full_info_array,$parse_php_type));
                 $data=substr($data,0,24);
                 //trigger_error("Error unpacking data get#1 [".strlen($data)."] ".$data,E_USER_NOTICE);
-                $this->disconnect();
+                //$this->disconnect();
                 return(NULL);
             }
             if ($get_type==OWNET_MSG_PRESENCE){
@@ -477,7 +477,7 @@ class OWNet{
                         $tmp_ret=$this->get_msg($data_len);
                         if ($tmp_ret===false){
                             //trigger_error("Can't read from resource get#4",E_USER_NOTICE);	// error receiving
-                            $this->disconnect();
+                            //$this->disconnect();
                             return(NULL);		// return NULL on error
                         }
                         if (strlen($tmp_ret)>0)	$start=microtime(1);
@@ -487,7 +487,7 @@ class OWNet{
                     }
                 if (!$return_full_info_array && strlen($data)!=$data_len){	// if just return value and data < data_len return as an error
                     //trigger_error("Can't read full data get#1",E_USER_NOTICE);
-                    $this->disconnect();
+                    //$this->disconnect();
                     return(NULL);		// return NULL on error
                 }
                 if ($get_type==OWNET_MSG_DIR){	// reading dir
@@ -504,7 +504,7 @@ class OWNet{
                 }else{
                     $ret['data']	=substr($data,0,$data_len);	// data_php length is the same as $ret[2]
                     $ret['data_len']=strlen($data);
-                    $this->disconnect();		// disconnect from server
+                    //$this->disconnect();		// disconnect from server
                     $type=false;			// check type?
                     if ($parse_php_type && $get_type!=OWNET_MSG_DIR_ALL){
                         $tmp		=explode('/',$path);$c=count($tmp)-1;
@@ -569,7 +569,7 @@ class OWNet{
                 break;
             }
         }
-        $this->disconnect();	// disconnect from server (dir listing)
+        //$this->disconnect();	// disconnect from server (dir listing)
         if ($get_type==OWNET_MSG_DIR_ALL && $return===NULL)	// old servers
             return($this->get($path,OWNET_MSG_DIR,$return_full_info_array,$parse_php_type));
         if ($return!==NULL){
@@ -631,8 +631,8 @@ class OWNet{
         }
         unset($type,$tmp,$tmp_v,$variavel,$ow,$c);
 
-        $this->disconnect();
-        $this->connect();
+        //$this->disconnect();
+        //$this->connect();
         if (!$this->link_connected){
             //trigger_error("Can't connect set#1",E_USER_NOTICE);
             return(false);		// return false on error
@@ -655,7 +655,7 @@ class OWNet{
             $tmp_ret=$this->get_msg(24);
             if ($tmp_ret===false){
                 //trigger_error("Can't read from resource set#1",E_USER_NOTICE);
-                $this->disconnect();
+                //$this->disconnect();
                 return(false);	// error reading return
             }
             if (strlen($tmp_ret)>0)	$start=microtime(1);
@@ -666,14 +666,14 @@ class OWNet{
         $ret=$this->unpack($data);	// unpack data return
         if (count($ret)<6){
             //trigger_error("Error unpacking data set#1 [".strlen($data)."] ".$data,E_USER_NOTICE);
-            $this->disconnect();
+            //$this->disconnect();
             return(false);		// return false on error
         }
         if (!isset($ret[2]))
             $ret[2]=1;		// be sure that we will work with error_reporting(E_ALL)
         if ($ret[2]!=0)
             $ret=false;		// return false on error
-        $this->disconnect();		// disconnect from server
+        //$this->disconnect();		// disconnect from server
         if ($ret!==false)
             return(true);		// very fine :)
         return($ret);			// :(
