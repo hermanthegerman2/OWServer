@@ -70,7 +70,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
 			//Never delete this line!
 			parent::Create();
 
-			$this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
+			//$this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
             $this->RegisterPropertyString('Host', '127.0.0.1');
             $this->RegisterPropertyInteger('Port', 4304);
             //$this->RegisterPropertyString('Table', json_encode($Style['Table']));
@@ -725,7 +725,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             if (!$this->ReadPropertyString('Host')) {
                 return false;
             }
-            $this->Socket=socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);                                        // create socket
+            $this->Socket=socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
             if ($this->Socket) {
                 socket_set_block($this->Socket);					                                                                // set it to blocking
                 $ok=socket_connect($this->Socket,$this->ReadPropertyString('Host'),$this->ReadPropertyInteger('Port'));// try to connect
