@@ -339,6 +339,7 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             // DatenStream zusammenfügen
             $head = $this->Buffer;
             $Data = $head . utf8_decode($data->Buffer);
+            $this->SendDebug('OWSPLIT_Event', $Data, 0);
 
             // Stream in einzelne Pakete schneiden
             $packet = explode(chr(0x0d), $Data);
