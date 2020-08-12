@@ -5,19 +5,17 @@
         {
             "type": "Label",
             "caption": "Enter address of OWServer in the parent Client-Socket."
-        }, {
+        },
+        {
         "name": "Host",
         "type": "ValidationTextBox",
         "caption": "OWServer address"
-    },
+        },
         {
             "name": "Port",
             "type": "NumberSpinner",
             "caption": "OWServer Port"
         }
-
-        ]
-    }
     ],
     "actions":
     [
