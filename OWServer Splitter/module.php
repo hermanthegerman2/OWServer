@@ -228,16 +228,13 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
          */
         public function KeepAlive()
         {
-            $Host = $this->ReadPropertyString('Host');
-            $Port = $this->ReadPropertyInteger('Port');
-
-            $OWNet = @new OWNet("tcp://" . $Host . ':' . $Port);
+            $OWNet = @new OWNet("tcp://" . $this->ReadPropertyString('Host') . ':' . $Port = $this->ReadPropertyInteger('Port'));
             if (!$OWNet) {
                 trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
                 return false;
             }
             //we are connected, proceed
-            $ret = $OWNet->presence();
+            $ret = $OWNet->presence($this->ow_path);
             if ($ret === null) {
                 trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
                 return false;
