@@ -350,7 +350,7 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
         {
             if ($State == IS_ACTIVE) {
                 if ($this->HasActiveParent()) {
-                    if ($this->CheckLogin() !== true) {
+                    if ($this->CheckConnection() !== true) {
                         $this->SetStatus(IS_EBASE + 4);
                         $this->SetTimerInterval('KeepAlive', 0);
                         return;
@@ -363,7 +363,7 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                     $this->RequestState('Servers');
                     $this->LogMessage($this->Translate('Connected Servers to OWSPLIT:') . $this->GetValue('Servers'), KL_NOTIFY);
                     $this->RefreshServerList();
-                    $ret = $this->Send(new LMSData('rescan', '?'));
+                    $ret = $this->Send(new OWSPLITData('rescan', '?'));
                     if ($ret !== null) {
                         $this->DecodeOWSPLITResponse($ret);
                     }
@@ -555,39 +555,28 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             $this->SendDataToChildren($Data);
         }
 
-        private function CheckLogin()
+        private function CheckConnection()
         {
             if ($this->Host === '') {
                 return false;
             }
 
+            $Host = $this->ReadPropertyString('Host');
             $Port = $this->ReadPropertyInteger('Port');
-            $CheckData = (new OWSPLITData('can', 'login'))->ToRawStringForOWSPLIT();
-
+            $CheckOWPath = (new OWSPLITData('dir', 'ow_path'))->ToRawStringForOWSPLIT();
+            $this->Socket = @new OWNet("tcp://" . $Host . ':' . $Port);
             try {
-                $fp = @stream_socket_client('tcp://' . $this->Host . ':' . $Port, $errno, $errstr, 2);
-                if (!$fp) {
+                if (!$this->Socket) {
                     $this->SendDebug('no socket', $errstr, 0);
-
-                    throw new Exception($this->Translate('No answer from OWSPLIT') . ' ' . $errstr, E_USER_NOTICE);
-                } else {
-                    stream_set_timeout($fp, 5);
-                    $this->SendDebug('Check login', 'check OWSPLIT', 0);
-                    //fwrite($fp, $LoginData);
-                    $answerlogin = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
-                    $this->SendDebug('Receive login', 'OWSPLIT', 0);
-                    $this->SendDebug('Connection check', $CheckData, 0);
-                    fwrite($fp, $CheckData);
-                    $answer = stream_get_line($fp, 1024 * 1024 * 2, chr(0x0d));
-                    fclose($fp);
+                    throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
+                }
+                else {
+                    $this->SendDebug('Connection check', $CheckOWPath, 0);
+                    fwrite($this->Socket, $CheckOWPath);
+                    fclose($this->Socket);
                     $this->SendDebug('Receive check', $answer, 0);
                 }
-                if ($answerlogin === false) {
-                    throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
-                }
-                if ($answer === false) {
-                    throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
-                }
+
             } catch (Exception $ex) {
                 echo $ex->getMessage();
                 return false;
