@@ -2,31 +2,6 @@
 
 declare(strict_types=1);
 
-define('OWNET_DEFAULT_HOST'	,'127.0.0.1');
-define('OWNET_DEFAULT_PORT'	,4304);
-define('OWNET_LINK_TYPE_SOCKET'	,0);
-define('OWNET_LINK_TYPE_STREAM'	,1);
-define('OWNET_LINK_TYPE_TCP'	,0);
-define('OWNET_LINK_TYPE_UDP'	,1);
-
-define('OWNET_MSG_ERROR'	,0);
-define('OWNET_MSG_NOP'		,1);
-define('OWNET_MSG_READ'		,2);
-define('OWNET_MSG_WRITE'	,3);
-define('OWNET_MSG_DIR'		,4);
-define('OWNET_MSG_SIZE'		,5);
-define('OWNET_MSG_PRESENCE'	,6);
-define('OWNET_MSG_DIR_ALL'	,7);
-define('OWNET_MSG_READ_ANY'	,99999);
-
-
-if (!defined('TCP_NODELAY'))
-    define('TCP_NODELAY',1);
-if (!defined('IPPROTO_TCP'))
-    define('IPPROTO_TCP',6);
-
-
-$OWNET_GLOBAL_CACHE_STRUCTURE=array();	// cache value types length read write....
 /*
  * @addtogroup OWServer
  * @{
@@ -79,64 +54,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             InstanceStatus::RegisterParent as IORegisterParent;
             InstanceStatus::RequestAction as IORequestAction;
         }
-        protected $link=0;
-        protected $host='';
-        protected $port=0;
-        protected $sock_type=OWNET_LINK_TYPE_TCP;
-        protected $link_type=OWNET_LINK_TYPE_SOCKET;
-        protected $link_connected=false;
-        protected $timeout=0;
-        protected $use_swig_dir=true;
-
-        private $Socket = false;
-
-        function __construct($host='',$timeout=5,$use_swig_dir=true){
-            // just set default configurations
-            $this->setHost($host);
-            $this->timeout=abs((double)$timeout);
-            $this->use_swig_dir=(bool)$use_swig_dir;
-        }
-        function setTimeout($timeout=5){
-            $this->timeout=abs((double)$timeout);
-        }
-        function getTimeout(){
-            return($this->timeout);
-        }
-        function setUseSwigDir($use){
-            $this->use_swig_dir=(bool)$use;
-        }
-        function getUseSwigDir(){
-            return($this->use_swig_dir);
-        }
-        function setHost($host=''){
-            // host must be "anything://host:port" or "anything://host" OR 'anything that don't parse_url and get default values'
-            // use "stream://host:port" or "ow-stream://host:port" to prefer stream instead sockets
-            $tmp_path	=@parse_url($host);	// get URL information from host
-            if (!isset($tmp_path['scheme']))
-                $tmp_path	=@parse_url("tcp://$host");
-
-            $this->host	=	(!isset($tmp_path['host'])?OWNET_DEFAULT_HOST:$tmp_path['host']);	// if don't have host get default host
-            $this->port	=(int)	(!isset($tmp_path['port'])?OWNET_DEFAULT_PORT:$tmp_path['port']);	// if don't have port get default port
-            $prefer_sock	=(isset($tmp_path['scheme'])?
-                ($tmp_path['scheme']!='stream' && $tmp_path['scheme']!='ow-stream' &&
-                    $tmp_path['scheme']!='stream-udp' && $tmp_path['scheme']!='ow-stream-udp')
-                :true);	// check if prefer using streams instead socket
-            if (strpos($tmp_path['scheme'],'udp')!==false)
-                $this->sock_type=OWNET_LINK_TYPE_UDP;
-            else
-                $this->sock_type=OWNET_LINK_TYPE_TCP;
-            unset($tmp_path);
-
-            if (function_exists('socket_connect') && $prefer_sock){
-                $this->link_type=OWNET_LINK_TYPE_SOCKET;	// prefer socks
-            }else{
-                $this->link_type=OWNET_LINK_TYPE_STREAM;	// prefer stream
-            }
-            $this->link_connected		=false;
-            return(true);
-        }
-
-        /*public function __destruct()
+        public function __destruct()
         {
             if ($this->Socket) {
                 fclose($this->Socket);
@@ -807,21 +725,27 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             if ($this->Host === '') {
                 return false;
             }
-            try {
-                if (!$this->Socket) {
+            $this->Socket=@socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
+            if ($this->Socket) {
+                @socket_set_block($this->Socket);					                                                                // set it to blocking
+                $ok=@socket_connect($this->Socket,$this->ReadPropertyString('Host'),$this->ReadPropertyInteger('Port'));// try to connect
+                if (!$ok){
+                    $errno	=@socket_last_error();				                                                                    // get error when connecting
+                    $errstr	=@socket_strerror(socket_last_error());
                     $this->SendDebug('no socket', $errstr, 0);
-                    throw new Exception($this->Translate('No answer from OWSPLIT -> Reconnect'), E_USER_NOTICE);
-                    $this->Socket = @new OWServerSplitter("tcp://" . $this->ReadPropertyString('Host') . ':' .  $this->ReadPropertyInteger('Port'));
-                    if (!$this->Socket) {
-                        throw new Exception($this->Translate('No answer from OWSPLIT -> Reconnect failed'), E_USER_NOTICE);
-                        return false;
-                    }
+                    @socket_shutdown($this->Socket,2);			                                                                // unload socket
+                    @socket_close($this->Socket);
+                    $this->Socket=NULL;
+                    return false;                                                                                                   // return false on error or can't connect
                 }
-            } catch (Exception $ex) {
-                echo $ex->getMessage();
-                return false;
+                return true;                                                                                                        // socket created and connected
             }
-            return true;
+            else {
+                $errno	=@socket_last_error(); // get error when creating socket
+                $errstr	=@socket_strerror(@socket_last_error());
+                $this->SendDebug('no socket', $errstr, 0);
+                return false;                                                                                                       // return false on error or can't connect
+            }
         }
 
         /**
