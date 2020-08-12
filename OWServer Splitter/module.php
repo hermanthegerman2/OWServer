@@ -2,6 +2,31 @@
 
 declare(strict_types=1);
 
+define('OWNET_DEFAULT_HOST'	,'127.0.0.1');
+define('OWNET_DEFAULT_PORT'	,4304);
+define('OWNET_LINK_TYPE_SOCKET'	,0);
+define('OWNET_LINK_TYPE_STREAM'	,1);
+define('OWNET_LINK_TYPE_TCP'	,0);
+define('OWNET_LINK_TYPE_UDP'	,1);
+
+define('OWNET_MSG_ERROR'	,0);
+define('OWNET_MSG_NOP'		,1);
+define('OWNET_MSG_READ'		,2);
+define('OWNET_MSG_WRITE'	,3);
+define('OWNET_MSG_DIR'		,4);
+define('OWNET_MSG_SIZE'		,5);
+define('OWNET_MSG_PRESENCE'	,6);
+define('OWNET_MSG_DIR_ALL'	,7);
+define('OWNET_MSG_READ_ANY'	,99999);
+
+
+if (!defined('TCP_NODELAY'))
+    define('TCP_NODELAY',1);
+if (!defined('IPPROTO_TCP'))
+    define('IPPROTO_TCP',6);
+
+
+$OWNET_GLOBAL_CACHE_STRUCTURE=array();	// cache value types length read write....
 /*
  * @addtogroup OWServer
  * @{
@@ -23,7 +48,7 @@ require_once __DIR__ . '/../libs/SemaphoreHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/VariableHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/VariableProfileHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
-require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distribution
+//require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distribution
 
 /**
  * LMSSplitter Klasse für die Kommunikation mit dem Logitech Media-Server (LMS).
@@ -54,9 +79,64 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             InstanceStatus::RegisterParent as IORegisterParent;
             InstanceStatus::RequestAction as IORequestAction;
         }
+        protected $link=0;
+        protected $host='';
+        protected $port=0;
+        protected $sock_type=OWNET_LINK_TYPE_TCP;
+        protected $link_type=OWNET_LINK_TYPE_SOCKET;
+        protected $link_connected=false;
+        protected $timeout=0;
+        protected $use_swig_dir=true;
+
         private $Socket = false;
 
-        public function __destruct()
+        function __construct($host='',$timeout=5,$use_swig_dir=true){
+            // just set default configurations
+            $this->setHost($host);
+            $this->timeout=abs((double)$timeout);
+            $this->use_swig_dir=(bool)$use_swig_dir;
+        }
+        function setTimeout($timeout=5){
+            $this->timeout=abs((double)$timeout);
+        }
+        function getTimeout(){
+            return($this->timeout);
+        }
+        function setUseSwigDir($use){
+            $this->use_swig_dir=(bool)$use;
+        }
+        function getUseSwigDir(){
+            return($this->use_swig_dir);
+        }
+        function setHost($host=''){
+            // host must be "anything://host:port" or "anything://host" OR 'anything that don't parse_url and get default values'
+            // use "stream://host:port" or "ow-stream://host:port" to prefer stream instead sockets
+            $tmp_path	=@parse_url($host);	// get URL information from host
+            if (!isset($tmp_path['scheme']))
+                $tmp_path	=@parse_url("tcp://$host");
+
+            $this->host	=	(!isset($tmp_path['host'])?OWNET_DEFAULT_HOST:$tmp_path['host']);	// if don't have host get default host
+            $this->port	=(int)	(!isset($tmp_path['port'])?OWNET_DEFAULT_PORT:$tmp_path['port']);	// if don't have port get default port
+            $prefer_sock	=(isset($tmp_path['scheme'])?
+                ($tmp_path['scheme']!='stream' && $tmp_path['scheme']!='ow-stream' &&
+                    $tmp_path['scheme']!='stream-udp' && $tmp_path['scheme']!='ow-stream-udp')
+                :true);	// check if prefer using streams instead socket
+            if (strpos($tmp_path['scheme'],'udp')!==false)
+                $this->sock_type=OWNET_LINK_TYPE_UDP;
+            else
+                $this->sock_type=OWNET_LINK_TYPE_TCP;
+            unset($tmp_path);
+
+            if (function_exists('socket_connect') && $prefer_sock){
+                $this->link_type=OWNET_LINK_TYPE_SOCKET;	// prefer socks
+            }else{
+                $this->link_type=OWNET_LINK_TYPE_STREAM;	// prefer stream
+            }
+            $this->link_connected		=false;
+            return(true);
+        }
+
+        /*public function __destruct()
         {
             if ($this->Socket) {
                 fclose($this->Socket);
@@ -228,7 +308,7 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
          */
         public function KeepAlive()
         {
-            $OWNet = @new OWNet("tcp://" . $this->ReadPropertyString('Host') . ':' . $Port = $this->ReadPropertyInteger('Port'));
+            /*$OWNet = @new OWNet("tcp://" . $this->ReadPropertyString('Host') . ':' . $Port = $this->ReadPropertyInteger('Port'));
             if (!$OWNet) {
                 trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
                 return false;
@@ -244,7 +324,8 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                 return true;
             }
             trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
-            return false;
+            return false;*/
+            return true;
         }
 
 
@@ -726,16 +807,16 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             if ($this->Host === '') {
                 return false;
             }
-
-            $Host = $this->ReadPropertyString('Host');
-            $Port = $this->ReadPropertyInteger('Port');
-            $OW = @new OWNet("tcp://" . $Host . ':' . $Port);
             try {
-                if (!$OW) {
+                if (!$this->Socket) {
                     $this->SendDebug('no socket', $errstr, 0);
-                    throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
+                    throw new Exception($this->Translate('No answer from OWSPLIT -> Reconnect'), E_USER_NOTICE);
+                    $this->Socket = @new OWServerSplitter("tcp://" . $this->ReadPropertyString('Host') . ':' .  $this->ReadPropertyInteger('Port'));
+                    if (!$this->Socket) {
+                        throw new Exception($this->Translate('No answer from OWSPLIT -> Reconnect failed'), E_USER_NOTICE);
+                        return false;
+                    }
                 }
-
             } catch (Exception $ex) {
                 echo $ex->getMessage();
                 return false;
@@ -827,5 +908,77 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             unset($data[$Index]);
             $this->ReplyOWSPLITData = $data;
             $this->unlock('ReplyOWSPLITData');
+        }
+
+        private function connect(){
+            // connect with sockets or stream
+            if ($this->link_connected)
+                return(true);		// if connected don't continue
+            if ($this->link_type==OWNET_LINK_TYPE_SOCKET){		// socket
+                if ($this->sock_type==OWNET_LINK_TYPE_TCP){
+                    $this->link=@socket_create(AF_INET, SOCK_STREAM, SOL_TCP);		// create socket
+                    if ($this->link){
+                        @socket_set_block($this->link);					// set it to blocking
+                        $ok=@socket_connect($this->link,$this->host,$this->port);	// try to connect
+                        if (!$ok){
+                            $errno	=@socket_last_error();				// get error when connecting
+                            $errstr	=@socket_strerror(socket_last_error());
+                            //trigger_error("Can't create socket [ow://".$this->host.":".$this->port."], errno: $errno, error: $errstr",E_USER_NOTICE);
+                            @socket_shutdown($this->link,2);			// unload socket
+                            @socket_close($this->link);
+                            $this->link=NULL;
+                            return(false);						// return false on error or can't connect
+                        }	// socket created and connected
+                    }else{
+                        $errno	=@socket_last_error();					// get error when creating socket
+                        $errstr	=@socket_strerror(@socket_last_error());
+                        //trigger_error("Can't create socket [ow://".$this->host.":".$this->port."], errno: $errno, error: $errstr",E_USER_NOTICE);
+                        return(false);							// return false on error or can't connect
+                    }
+                }else{	// udp
+                    $this->link=@socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);		// create socket
+                    if ($this->link){
+                        @socket_set_block($this->link);					// set it to blocking
+                    }else{
+                        $errno	=@socket_last_error();					// get error when creating socket
+                        $errstr	=@socket_strerror(@socket_last_error());
+                        //trigger_error("Can't create socket [ow-udp://".$this->host.":".$this->port."], errno: $errno, error: $errstr",E_USER_NOTICE);
+                        return(false);							// return false on error or can't connect
+                    }
+                }
+            }else{							// stream
+                $this->link	=@stream_socket_client(
+                    ($this->sock_type==OWNET_LINK_TYPE_TCP?'tcp://':'udp://').
+                    $this->host.":".$this->port, $errno, $errstr, $this->timeout);		// connect with streams, could be with fsockopen but stream_socket_client is faster (we will use PHP 5+)
+                if (!$this->link){
+                    //trigger_error("Can't create stream [ow-stream".($this->sock_type!=OWNET_LINK_TYPE_TCP?'-udp':'')."://".$this->host.":".$this->port."], errno: $errno, error: $errstr",E_USER_NOTICE);
+                    return(false);							// return false on error or can't connect
+                }
+            }
+            $this->set_link_options();	// set socket options or stream options
+            $this->link_connected=true;
+            return(true);			// ok
+        }
+        private function set_link_options(){
+            // set link options
+            if (!$this->link_connected)
+                return(false);
+            if ($this->link_type==OWNET_LINK_TYPE_SOCKET){		// socket
+                socket_set_block(	$this->link);				// set blocking mode
+                if ($this->sock_type==OWNET_LINK_TYPE_TCP){
+                    socket_set_option(	$this->link,SOL_SOCKET, SO_RCVTIMEO, array("sec"=>0, "usec"=>100));	// receive timeout
+                    socket_set_option(	$this->link,SOL_SOCKET, SO_SNDTIMEO, array("sec"=>0, "usec"=>100));	// send timeout
+                    socket_set_option($this->link, SOL_SOCKET, SO_REUSEADDR, 1);	// reuse address
+                    socket_set_option($this->link, SOL_SOCKET, SO_OOBINLINE, 1);	// out off band inline
+                    @socket_set_option($this->link, IPPROTO_TCP, TCP_NODELAY, 1);	// no delay  can have bug with windows?!
+                }
+                socket_set_option($this->link, SOL_SOCKET, SO_RCVBUF, 8192);	// set receive buffer
+                socket_set_option($this->link, SOL_SOCKET, SO_SNDBUF, 8192);	// set send buffer
+            }else{
+                stream_set_timeout($this->link		,20);			// set timeout
+                stream_set_blocking($this->link		,1);			// set blocking mode
+                stream_set_write_buffer($this->link	,0);			// flush everything directly without buffer (faster than with buffer=8192)
+            }
+            return(true);
         }
 	}
