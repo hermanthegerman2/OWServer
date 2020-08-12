@@ -722,16 +722,16 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
 
         private function CheckConnection()
         {
-            if ($this->Host === '') {
+            if ($this->ReadPropertyString('Host') === '') {
                 return false;
             }
-            $this->Socket=@socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
+            $this->Socket=socket_create(AF_INET, SOCK_STREAM, SOL_TCP);                                        // create socket
             if ($this->Socket) {
                 @socket_set_block($this->Socket);					                                                                // set it to blocking
                 $ok=@socket_connect($this->Socket,$this->ReadPropertyString('Host'),$this->ReadPropertyInteger('Port'));// try to connect
                 if (!$ok){
-                    $errno	=@socket_last_error();				                                                                    // get error when connecting
-                    $errstr	=@socket_strerror(socket_last_error());
+                    $errno	=socket_last_error();				                                                                    // get error when connecting
+                    $errstr	=socket_strerror(socket_last_error());
                     $this->SendDebug('no socket', $errstr, 0);
                     @socket_shutdown($this->Socket,2);			                                                                // unload socket
                     @socket_close($this->Socket);
@@ -741,8 +741,8 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
                 return true;                                                                                                        // socket created and connected
             }
             else {
-                $errno	=@socket_last_error(); // get error when creating socket
-                $errstr	=@socket_strerror(@socket_last_error());
+                $errno	=socket_last_error(); // get error when creating socket
+                $errstr	=socket_strerror(@socket_last_error());
                 $this->SendDebug('no socket', $errstr, 0);
                 return false;                                                                                                       // return false on error or can't connect
             }
