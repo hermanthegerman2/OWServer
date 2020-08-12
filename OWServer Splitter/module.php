@@ -237,13 +237,13 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                 return false;
             }
             //we are connected, proceed
-            $ret = $this->Socket->presence($this->ow_path);
+            $ret = $this->Socket->presence();
             if ($ret === null) {
                 trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
                 return false;
             }
             $this->SendDebug('KeepAlive', $ret, 0);
-            if ($ret->Data[0] == '6') {
+            if ($ret) {
                 return true;
             }
             trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
@@ -423,10 +423,10 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                     $this->SetStatus(IS_ACTIVE);
                     $this->KeepAlive();
                     $this->LogMessage($this->Translate('Connected to OWSPLIT'), KL_NOTIFY);
-                    $this->RequestState('Version');
+                    //$this->RequestState('Version');
                     $this->LogMessage($this->Translate('Version of OWSPLIT:') . $this->GetValue('Version'), KL_NOTIFY);
                     $this->RequestState('Servers');
-                    $this->LogMessage($this->Translate('Connected Servers to OWSPLIT:') . $this->GetValue('Servers'), KL_NOTIFY);
+                    //$this->LogMessage($this->Translate('Connected Servers to OWSPLIT:') . $this->GetValue('Servers'), KL_NOTIFY);
                     $this->RefreshServerList();
                     $ret = $this->Send(new OWSPLITData('rescan', '?'));
                     if ($ret !== null) {
