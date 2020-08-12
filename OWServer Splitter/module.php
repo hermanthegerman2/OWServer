@@ -23,6 +23,7 @@ require_once __DIR__ . '/../libs/SemaphoreHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/VariableHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/VariableProfileHelper.php';  // diverse Klassen
 require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
+require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distribution
 
 /**
  * LMSSplitter Klasse für die Kommunikation mit dem Logitech Media-Server (LMS).
@@ -440,23 +441,86 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
                 $this->SendDebug('Send Direct', $OWSPLITData, 0);
 
                 if (!$this->Socket) {
+                    $Host = $this->ReadPropertyString('Host');
                     $Port = $this->ReadPropertyInteger('Port');
-                    //$User = $this->ReadPropertyString('User');
-                    //$Pass = $this->ReadPropertyString('Password');
 
-                    //$LoginData = (new LMSData('login', [$User, $Pass]))->ToRawStringForLMS();
-                    //$this->SendDebug('Send Direct', $LoginData, 0);
-                    $this->Socket = @stream_socket_client('tcp://' . $this->Host . ':' . $Port, $errno, $errstr, 1);
+                    $this->Socket = @new OWNet("tcp://" . $Host . ':' . $Port);
                     if (!$this->Socket) {
                         throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
                     }
-                    stream_set_timeout($this->Socket, 5);
-                    //fwrite($this->Socket, $LoginData);
-                    $answerlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
-                    $this->SendDebug('Response Direct', $answerlogin, 0);
-                    if ($answerlogin === false) {
-                        throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
+                    //we are connected, proceed
+                    $ow_dir = $this->Socket ->dir($this->ow_path);
+                    if ($ow_dir && isset($ow_dir['data_php'])) {
+                        //walk through the retrieved tree
+                        $dirs = explode(",", $ow_dir['data_php']);
+                        if (is_array($dirs) && (count($dirs) > 0)) {
+                            $i = 0;
+                            foreach ($dirs as $dev) {
+                                $data = array();
+                                $caps = '';
+                                /* read standard device details */
+                                //get family id
+                                $fam = $ow->read("$dev/family");
+                                if (!$fam) continue; //not a device path
+                                //get device id
+                                $id = $ow->read("$dev/id");
+                                //get alias (if any) and owfs detected device description as type
+                                $alias = $ow->get("$dev/alias");
+                                $type = $ow->get("$dev/type");
+                                if (!$type) {
+                                    $type = "1Wire Family " . $fam;
+                                }
+                                //assign names for ips categories
+                                $name = $id;
+                                if ($alias) {
+                                    $name = $alias;
+                                    $caps = 'Name';
+                                }
+
+                                //get varids
+                                $addr = "$fam.$id";
+                                //print "$id ($alias): Type $type Family $fam\n";
+                                //retrieve device specific data
+                                switch ($fam) {
+                                    case '28': //DS18B20 temperature sensors
+                                    case '10': //DS18S20 temperature sensors
+                                    case '22': //DS1820 temperature sensors
+                                        $temp = $ow->read("$dev/temperature", true);
+                                        $temp = str_replace(",", ".", $temp);
+                                        if (strlen($temp) > 0) {
+                                            //store new temperature value
+                                            //$this->_log('OWNet', "$type $id ($alias): $temp");
+                                            $data['Name'] = $name;
+                                            $data['Id'] = $addr;
+                                            $data['Typ'] = $type;
+                                            $data['Temp'] = sprintf("%4.2F", $temp);
+                                            //print " Alias '$alias',Temp $temp\n";
+                                            $caps .= ';Temp';
+                                            $this->_log('OWNet Device', $data);
+                                            $OWDeviceArray[$i] = $data;
+                                            $i = ++$i;
+                                        }
+                                        break;
+                                    default:
+                                        $this->SendDebug('OWNet', "$id ($alias): Type $type Family $fam not implemented yet",0);
+                                }
+                            }
+                            $this->SendDebug('OWNet Device Array', $OWDeviceArray, 0);
+                            //$this->SetBuffer('OWDeviceArray', json_encode($OWDeviceArray));
+                        }
                     }
+
+
+                    /*
+                     * stream_set_timeout($this->Socket, 5);
+                     * fwrite($this->Socket, $LoginData);
+                     * $answerlogin = stream_get_line($this->Socket, 1024 * 1024 * 2, chr(0x0d));
+                     * $this->SendDebug('Response Direct', $answerlogin, 0);
+                     * if ($answerlogin === false) {
+                     *    throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
+                     * }
+                     *
+                     */
                 }
 
                 $Data = $OWSPLITData->ToRawStringForOWSPLIT();
@@ -616,26 +680,4 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             $this->ReplyOWSPLITData = $data;
             $this->unlock('ReplyOWSPLITData');
         }
-
-
-/*
-        public function ForwardData($JSONString)
-		{
-			$data = json_decode($JSONString);
-			IPS_LogMessage("Splitter FRWD", utf8_decode($data->Buffer . " - " + $data->ClientIP + " - " . $data->ClientPort));
-
-			$this->SendDataToParent(json_encode(Array("DataID" => "{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}", "Buffer" => $data->Buffer, $data->ClientIP, $data->ClientPort)));
-
-			return "String data for device instance!";
-		}
-
-		public function ReceiveData($JSONString)
-		{
-			$data = json_decode($JSONString);
-			IPS_LogMessage("Splitter RECV", utf8_decode($data->Buffer . " - " + $data->ClientIP + " - " . $data->ClientPort));
-
-			$this->SendDataToChildren(json_encode(Array("DataID" => "{41FAEDA0-12D1-C0AF-0379-0DED801354B3}", "Buffer" => $data->Buffer, $data->ClientIP, $data->ClientPort)));
-		}
-*/
-
 	}
