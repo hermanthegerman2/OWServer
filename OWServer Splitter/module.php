@@ -71,7 +71,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
 			//Never delete this line!
 			parent::Create();
 
-			$this->RequireParent("{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}");
+			$this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
             $this->RegisterPropertyString('Host', '127.0.0.1');
             $this->RegisterPropertyInteger('Port', 4304);
             //$this->RegisterPropertyString('Table', json_encode($Style['Table']));
