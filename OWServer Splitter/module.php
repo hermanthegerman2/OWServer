@@ -745,6 +745,9 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
                 socket_set_option($this->Socket, IPPROTO_TCP, TCP_NODELAY, 1);	// no delay  can have bug with windows?!
                 socket_set_option($this->Socket, SOL_SOCKET, SO_RCVBUF, 8192);	// set receive buffer
                 socket_set_option($this->Socket, SOL_SOCKET, SO_SNDBUF, 8192);	// set send buffer
+                $errno	=socket_last_error();				                                                                    // get error when connecting
+                $errstr	=socket_strerror(socket_last_error());
+                $this->SendDebug('socket ok', $errstr, 0);
                 return true;                                                                                                        // socket created and connected
             }
             else {
