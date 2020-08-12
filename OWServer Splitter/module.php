@@ -564,16 +564,15 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             $Host = $this->ReadPropertyString('Host');
             $Port = $this->ReadPropertyInteger('Port');
             $CheckOWPath = (new OWSPLITData('dir', 'ow_path'))->ToRawStringForOWSPLIT();
-            $this->Socket = @new OWNet("tcp://" . $Host . ':' . $Port);
+            $OW = @new OWNet("tcp://" . $Host . ':' . $Port);
             try {
-                if (!$this->Socket) {
+                if (!$OW) {
                     $this->SendDebug('no socket', $errstr, 0);
                     throw new Exception($this->Translate('No answer from OWSPLIT'), E_USER_NOTICE);
                 }
                 else {
                     $this->SendDebug('Connection check', $CheckOWPath, 0);
-                    fwrite($this->Socket, $CheckOWPath);
-                    fclose($this->Socket);
+                    $OW->$CheckOWPath;
                     $this->SendDebug('Receive check', $answer, 0);
                 }
 
