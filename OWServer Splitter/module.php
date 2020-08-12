@@ -421,8 +421,8 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
                     $this->KeepAlive();
                     $this->LogMessage($this->Translate('Connected to OWSPLIT'), KL_NOTIFY);
                     //$this->RequestState('Version');
-                    $this->LogMessage($this->Translate('Version of OWSPLIT:') . $this->GetValue('Version'), KL_NOTIFY);
-                    $this->RequestState('Servers');
+                    //$this->LogMessage($this->Translate('Version of OWSPLIT:') . $this->GetValue('Version'), KL_NOTIFY);
+                    //$this->RequestState('Servers');
                     //$this->LogMessage($this->Translate('Connected Servers to OWSPLIT:') . $this->GetValue('Servers'), KL_NOTIFY);
                     $this->RefreshServerList();
                     $ret = $this->Send(new OWSPLITData('rescan', '?'));
