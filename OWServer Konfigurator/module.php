@@ -377,7 +377,7 @@ require_once __DIR__ . '/../libs/ParentIOHelper.php';  // diverse Klassen
         private function Send(OWSPLITData $OWSPLITData)
         {
             try {
-                $JSONData = $OWSPLITData->ToJSONString('{7A1272A4-CBDB-46EF-BFC6-DCF4A53D2FC7}');
+                $JSONData = $OWSPLITData->ToJSONString('{018EF6B5-AB94-40C6-AA53-46943E824ACF}');
                 $answer = @$this->SendDataToParent($JSONData);
                 if ($answer === false) {
                     return null;
