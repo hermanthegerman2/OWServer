@@ -218,6 +218,30 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
             }
         }
 
+        //################# PUBLIC
+
+        /**
+         * IPS-Instanz-Funktion 'OWSPLIT_KeepAlive'.
+         * Sendet einen listen Abfrage an den LMS um die Kommunikation zu erhalten.
+         *
+         * @result bool true wenn OWSPLIT erreichbar, sonst false.
+         */
+        public function KeepAlive()
+        {
+            $Data = new OWSPLITData('presence', '');
+            $ret = @$this->Send($Data);
+            if ($ret === null) {
+                trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
+                return false;
+            }
+            if ($ret->Data[0] == '6') {
+                return true;
+            }
+
+            trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
+            return false;
+        }
+
         /**
          * IPS-Instanz-Funktion 'OWSPLIT_SendSpecial'.
          * Sendet einen Anfrage an den LMS.

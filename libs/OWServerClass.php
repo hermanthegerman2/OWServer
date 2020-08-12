@@ -144,7 +144,7 @@ class OWSPLITData extends stdClass
 class OWSPLITResponse extends OWSPLITData
 {
     /**
-     * Antwort ist vom LMS-Server.
+     * Antwort ist vom OWSPLIT-Server.
      *
      * @static
      */
@@ -172,7 +172,7 @@ class OWSPLITResponse extends OWSPLITData
     public $Device;
 
     /**
-     * Zerlegt eine Antwort des LMS und erzeugt daraus ein LMSResponse-Objekt.
+     * Zerlegt eine Antwort des OWSPLIT und erzeugt daraus ein OWSPLITResponse-Objekt.
      *
      * @param string $RawString
      */
