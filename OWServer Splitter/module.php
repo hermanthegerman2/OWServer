@@ -228,19 +228,28 @@ require_once __DIR__ . '/../libs/OWNet.php';  // Ownet.php from owfs distributio
          */
         public function KeepAlive()
         {
-            $Data = new OWSPLITData('presence', '');
-            $ret = @$this->Send($Data);
+            $Host = $this->ReadPropertyString('Host');
+            $Port = $this->ReadPropertyInteger('Port');
+
+            $this->Socket = @new OWNet("tcp://" . $Host . ':' . $Port);
+            if (!$this->Socket) {
+                trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
+                return false;
+            }
+            //we are connected, proceed
+            $ret = $this->Socket->presence($this->ow_path);
             if ($ret === null) {
                 trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
                 return false;
             }
+            $this->SendDebug('KeepAlive', $ret, 0);
             if ($ret->Data[0] == '6') {
                 return true;
             }
-
             trigger_error($this->Translate('Error on keepalive to OWSPLIT.'), E_USER_NOTICE);
             return false;
         }
+
 
         /**
          * IPS-Instanz-Funktion 'OWSPLIT_SendSpecial'.
