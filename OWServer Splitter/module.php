@@ -498,6 +498,7 @@ require_once __DIR__ . '/../libs/WebhookHelper.php';  // diverse Klassen
             }
 
             $Port = $this->ReadPropertyInteger('Port');
+            $CheckData = (new OWSPLITData('can', 'login'))->ToRawStringForOWSPLIT();
 
             try {
                 $fp = @stream_socket_client('tcp://' . $this->Host . ':' . $Port, $errno, $errstr, 2);

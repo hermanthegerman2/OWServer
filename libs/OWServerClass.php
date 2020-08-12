@@ -92,4 +92,82 @@ class OWSPLITData extends stdClass
         }
         $this->needResponse = $needResponse;
     }
+
+    /**
+     * Erzeugt einen String für den Datenaustausch mit einer IO-Instanz.
+     *
+     * @param type $GUID Die TX-GUID
+     *
+     * @return type Der JSON-String für den Datenaustausch.
+     */
+    public function ToJSONStringForOWSPLIT($GUID)
+    {
+        return json_encode(['DataID' => $GUID, 'Buffer' => utf8_encode($this->ToRawStringForOWSPLIT())]);
+    }
+
+    public function ToRawStringForOWSPLIT()
+    {
+        $Command = implode(' ', $this->Command);
+        $this->SendValues = 0;
+
+        if (is_array($this->Data)) {
+            $Data = implode(' ', $this->Data);
+            $this->SendValues = count($this->Data);
+        } else {
+            $Data = $this->Data;
+            if (($this->Data !== null) && ($this->Data != '%3F')) {
+                $this->SendValues = 1;
+            }
+        }
+        return trim($this->Address . ' ' . trim($Command) . ' ' . trim($Data)) . chr(0x0d);
+    }
+}
+
+class OWSPLITResponse extends OWSPLITData
+{
+    /**
+     * Antwort ist vom LMS-Server.
+     *
+     * @static
+     */
+    const isServer = 0;
+
+    /**
+     * Antwort ist von einer MAC-Adresse.
+     *
+     * @static
+     */
+    const isMAC = 1;
+
+    /**
+     * Antwort ist von einer IP-Adresse.
+     *
+     * @static
+     */
+    const isIP = 2;
+
+    /**
+     * Enthält den Type des Versenders einer Antwort.
+     *
+     * @var int Kann ::isServer, ::isMAC oder ::isIP sein.
+     */
+    public $Device;
+
+    /**
+     * Erzeugt aus dem Objekt einen JSON-String.
+     *
+     * @param string $GUID GUID welche in den JSON-String eingebunden wird.
+     *
+     * @return string Der JSON-String für den Datenaustausch
+     */
+    public function ToJSONStringForDevice(string $GUID)
+    {
+        $this->EncodeUTF8($this);
+        return json_encode(['DataID'  => $GUID,
+            'Address'                 => $this->Address,
+            'Command'                 => $this->Command,
+            'Data'                    => $this->Data
+        ]);
+    }
+
 }
